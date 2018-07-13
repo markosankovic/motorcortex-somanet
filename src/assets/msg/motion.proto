@@ -1,0 +1,18 @@
+
+syntax = "proto2";
+package motion;
+
+message FoERequest {
+  required uint32 device_id = 1;
+  required string filename = 2;
+}
+
+message FoEContentMsg {
+  required string data = 1;
+  required bool success = 2;
+}
+
+message TestMsg {
+ required uint32 test = 1;
+}
+

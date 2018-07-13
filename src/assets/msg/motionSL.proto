@@ -1,0 +1,218 @@
+// Developer : Azamat Shakhimardanov (azamat@vectioneer.com)
+// All rights reserved. Copyright (c) 2014-2015 VECTIONEER.
+
+syntax = "proto2";
+package motion_spec;
+
+enum MOTIONTYPE
+{
+    JOINTMOTION = 0;
+    CARTMOTION = 1;
+    SET = 2;
+    WAIT = 3;   
+    ARC = 4;
+}
+
+enum USERFRAMETYPE
+{
+    ROBOT = 0;
+
+    UF1   = 1;
+    UF2   = 2;
+    UF3   = 3;
+    UF4   = 4;
+    UF5   = 5;
+    UF6   = 6;
+    UF7   = 7;
+    UF8   = 8;
+    UF9   = 9;
+    UF10  = 10;
+ 
+    WORLD = 100;    
+}
+
+enum WAYPOINTCONSTRAINTTYPE
+{
+    POSITION = 0;
+    TIME = 1;
+    ACCELERATION = 2;
+}
+
+enum MOTIONCONSTRAINTTYPE
+{
+    TIMEANDACC = 0;
+    TIMEANDTIMEACC = 1;
+    VELANDACC = 2;
+}
+
+enum FEATUREFRAMETYPE 
+{
+    FLANGE = 0;
+    TOOLTIP = 1;
+}
+
+message VelAndAccConstraintValues
+{
+    required double vMax = 1;
+    required double aMax = 2;  
+    optional double omegaMax = 3;
+    optional double alfaMax = 4;
+    optional double jMax = 5;
+}
+
+message TimeAndAccConstraintValues
+{
+    required double T_duration = 1;
+    required double aMax = 2;
+}
+
+message TimeAndTimeAccConstraintValues
+{
+    required double T_duration = 1;
+    required double T_acc = 2;
+}
+
+message MotionConstraint
+{
+    required MOTIONCONSTRAINTTYPE type = 1;    
+    optional TimeAndTimeAccConstraintValues time_values = 2;
+    optional TimeAndAccConstraintValues timeacc_values = 3;
+    optional VelAndAccConstraintValues velacc_values = 4;
+}
+
+message WayPointConstraint
+{
+    required WAYPOINTCONSTRAINTTYPE type = 1;
+    required double factor = 2;
+}
+
+message Pose
+{
+    repeated double coordinates = 1;
+    optional uint32 id = 2;
+    optional uint32 id_parent = 3;
+}
+
+// it is not implemented yet
+message ToolTipOffset
+{
+    required double offsetX = 1;
+    required double offsetY = 2;
+    required double offsetZ = 3;
+    required double offsetA = 4;
+    required double offsetB = 5;
+    required double offsetC = 6;
+}
+
+// the values of waypoint acc, time, vel and distance
+// are normalized w.r.t to their segment values
+// e.g if T of a segment is 100 %, 
+// blendTime is a fraction of this time
+
+//segmentVelocity is exit velocity from the blend
+message WayPoint
+{
+    required Pose pose = 1;
+    optional WayPointConstraint constraint = 2;  
+    optional double segmentVelocity = 3;
+}
+
+message MoveC
+{
+    required MotionConstraint constraint = 1;
+    repeated double referenceJointCoordinates = 2;
+    repeated WayPoint waypoints = 3;  
+    required double angle = 4;
+    optional USERFRAMETYPE userframe = 5;	
+}
+
+message MoveL
+{
+    required MotionConstraint constraint = 1;
+    repeated double referenceJointCoordinates = 2;
+    repeated WayPoint waypoints = 3;  
+    optional USERFRAMETYPE userframe = 5;	
+}
+
+message MoveJ
+{
+    required MotionConstraint constraint = 1;
+    repeated WayPoint waypoints = 2;  
+}
+
+message  Set
+{
+    required string path = 1;
+    required bool value = 2;
+    optional double time_sec = 3;
+}
+
+message  Get
+{
+    required string path = 1;
+}
+
+message  Wait
+{
+    optional string path = 1;
+    optional bool value = 2;
+    optional double timeout = 3;
+    optional uint32 error_code = 4;
+}
+
+message MotionCommand {
+    required uint32 id = 1;
+    required MOTIONTYPE commandtype = 2;
+    required bytes commandarguments = 3; 
+}
+
+message MotionProgram
+{
+    required string name = 1;
+    required uint32 id = 2;
+    repeated MotionCommand commandlist = 3;
+}
+
+message Twist
+{
+    repeated double coordinates = 1;
+}
+
+message CartToJoint
+{
+    required Pose cartpose = 1;
+    required Pose jointpose = 2;
+    required FEATUREFRAMETYPE frame_type = 3;
+    required Twist jointtwist = 4;
+    required Twist carttwist = 5;
+}
+
+message CartToJointList
+{
+    repeated CartToJoint carttojointlist = 1;
+}
+
+message JointToCart 
+{
+    required Pose cartpose = 1;
+    required Pose jointpose = 2;
+    required Twist jointtwist = 3;
+    required Twist carttwist = 4;
+}
+
+message JointToCartList
+{
+     repeated JointToCart jointtocartlist = 1;
+}
+
+message PoseTreeNode
+{
+    required uint32 frame_id = 1;
+    required Pose cartpose = 2;
+}
+
+message PoseTree
+{
+    required uint32 frame_id = 1;
+    repeated PoseTreeNode childnodes = 2;
+}

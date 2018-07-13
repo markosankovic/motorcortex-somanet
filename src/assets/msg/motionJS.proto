@@ -1,0 +1,12 @@
+// Developer : Alexey Zakharov (alexey@vectioneer.com)
+// All rights reserved. Copyright (c) 2017 VECTIONEER.
+
+syntax = "proto2";
+package motion_spec;
+
+message MotionScript {
+  required string name = 1;
+  required uint32 id = 2;
+  required string script = 3;
+}
+
